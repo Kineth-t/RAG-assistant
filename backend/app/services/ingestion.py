@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from langchain_core.documents import Document
@@ -56,7 +57,9 @@ def load_document(path: Path) -> list[Document]:
 
 
 def clean_text(text: str) -> str:
-    
+    text = re.sub(r"[ \t]+\n", "\n", text)  # remove spaces before a line break
+    text = re.sub(r"[ \t]{2,}", " ", text)  # collapse runs of spaces
+    return text.strip()
 
 
 def chunk_documents(docs, chunk_size: int, chunk_overlap: int) -> list[Document]: ...
