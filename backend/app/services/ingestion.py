@@ -62,7 +62,24 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
-def chunk_documents(docs, chunk_size: int, chunk_overlap: int) -> list[Document]: ...
+def chunk_documents(
+    docs: list[Document], chunk_size: int, chunk_overlap: int
+) -> list[Document]:
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
+    return splitter.split_documents(docs)
+
+
 def ingest_file(
     path: Path, *, document_id: str, user_id: str, chunk_size: int, chunk_overlap: int
-) -> list[Document]: ...
+) -> list[Document]:
+    docs = load_document(path)
+    for doc in docs:
+        doc.page_content = clean_text(doc.page_content)
+        doc.metadata["document_id"] = document_id
+        doc.metadata["user_id"] = user_id
+
+    chunks = chunk_documents(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    return chunks
